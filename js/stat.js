@@ -8,8 +8,7 @@ var GAP = 10;
 var BAR_WIDTH = 40;
 var BAR_X_GAP = 50;
 var BAR_Y_GAP = 90 + 150;
-var maxBarHeight = 150;
-
+var MAX_BAR_HEIGHT = 150;
 
 var renderCloud = function (ctx, x, y, color) {
   ctx.fillStyle = color;
@@ -49,7 +48,7 @@ window.renderStatistics = function (ctx, names, times) {
     ctx.fillStyle = getHistogrammColor(names[i]);
 
     var rectWidth = BAR_WIDTH;
-    var rectHeight = (maxBarHeight * times[i]) / maxTime;
+    var rectHeight = (MAX_BAR_HEIGHT * times[i]) / maxTime;
 
     var contextPositionX = CLOUD_X + BAR_X_GAP + (BAR_WIDTH + BAR_X_GAP) * i;
     var contextPositionY = BAR_Y_GAP - rectHeight;
@@ -59,7 +58,16 @@ window.renderStatistics = function (ctx, names, times) {
 
   for (i = 0; i < names.length; i++) {
     ctx.fillStyle = '#000';
-    ctx.fillText(names[i], CLOUD_X + BAR_X_GAP + (BAR_WIDTH + BAR_X_GAP) * i, CLOUD_HEIGHT - GAP);
-    ctx.fillText(Math.round(times[i]), CLOUD_X + BAR_X_GAP + (BAR_WIDTH + BAR_X_GAP) * i, BAR_Y_GAP - GAP);
+
+    var namesDisplay = names[i];
+    var namesPositionX = CLOUD_X + BAR_X_GAP + (BAR_WIDTH + BAR_X_GAP) * i;
+    var namesPositionY = CLOUD_HEIGHT - GAP;
+
+    var timesDisplay = Math.round(times[i]);
+    var timesPositionX = CLOUD_X + BAR_X_GAP + (BAR_WIDTH + BAR_X_GAP) * i;
+    var timesPositionY = BAR_Y_GAP - GAP;
+
+    ctx.fillText(namesDisplay, namesPositionX, namesPositionY);
+    ctx.fillText(timesDisplay, timesPositionX, timesPositionY);
   }
 };
