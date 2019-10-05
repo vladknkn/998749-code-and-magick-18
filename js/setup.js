@@ -55,16 +55,12 @@ similarListElement.appendChild(fragment);
 var setupOpen = document.querySelector('.setup-open');
 var setupClose = userDialog.querySelector('.setup-close');
 var userNameForm = userDialog.querySelector('.setup-user-name');
-console.log(userNameForm);
+var isFocused = false;
 
 function onPopupEscPress(evt) {
-  if (evt.keyCode === ESC_KEYCODE && userNameForm.classList !== 'setup-user-name focused') {
+  if (evt.keyCode === ESC_KEYCODE && !isFocused) {
     closePopup();
   }
-}
-
-function addFormFocus(form) {
-  form.classList.add('focused');
 }
 
 function openPopup() {
@@ -78,7 +74,11 @@ function closePopup() {
 }
 
 userNameForm.addEventListener('focus', function () {
-    addFormFocus(userNameForm);
+  isFocused = true;
+});
+
+userNameForm.addEventListener('blur', function () {
+  isFocused = false;
 });
 
 setupOpen.addEventListener('click', function () {
