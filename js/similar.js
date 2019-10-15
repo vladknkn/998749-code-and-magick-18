@@ -1,37 +1,62 @@
 'use strict';
-
 (function () {
   var COAT_COLORS = ['rgb(101, 137, 164)', 'rgb(241, 43, 107)', 'rgb(146, 100, 161)', 'rgb(56, 159, 117)', 'rgb(215, 210, 55)', 'rgb(0, 0, 0)'];
   var EYES_COLORS = ['black', 'red', 'blue', 'yellow', 'green'];
   var FIREBALL_COLORS = ['#ee4830', '#30a8ee', '#5ce6c0', '#e848d5', '#e6e848'];
-  window.userDialog = document.querySelector('.setup');
+  var coatColor;
+  var eyesColor;
+  var wizards = [];
 
-  // Отрисовка волшебников
+  function getRank(wizard) {
+    var rank = 0;
 
-  var similarListElement = window.userDialog.querySelector('.setup-similar-list');
-  var similarWizardTemplate = document.querySelector('#similar-wizard-template').content.querySelector('.setup-similar-item');
-
-  function renderWizard(wizard) {
-    var wizardElement = similarWizardTemplate.cloneNode(true);
-
-    wizardElement.querySelector('.setup-similar-label').textContent = wizard.name;
-    wizardElement.querySelector('.wizard-coat').style.fill = wizard.colorCoat;
-    wizardElement.querySelector('.wizard-eyes').style.fill = wizard.colorEyes;
-    document.querySelector('.setup-fireball-wrap').style.backgroundColor = wizard.colorFireball;
-
-    return wizardElement;
-  }
-
-  function loadHandler(wizards) {
-    var fragment = document.createDocumentFragment();
-    for (var i = 0; i < 4; i++) {
-      fragment.appendChild(renderWizard(wizards[i]));
+    if (wizard.colorCoat === coatColor) {
+      rank += 2;
     }
-    similarListElement.appendChild(fragment);
-    window.userDialog.querySelector('.setup-similar').classList.remove('hidden');
+    if (wizard.colorEyes === eyesColor) {
+      rank += 1;
+    }
+
+    return rank;
   }
 
-  var errorHandler = function (errorMessage) {
+  function namesComparator(left, right) {
+    if (left > right) {
+      return 1;
+    } else if (left < right) {
+      return -1;
+    } else {
+      return 0;
+    }
+  }
+
+  function updateWizards() {
+    window.render(wizards.slice().sort(function (left, right) {
+      var rankDiff = getRank(right) - getRank(left);
+      if (rankDiff === 0) {
+        rankDiff = namesComparator(left.name, right.name);
+      }
+      return rankDiff;
+    }));
+  }
+
+  window.wizard = {
+    onEyesChange: function (color) {
+      eyesColor = color;
+      window.debounce(updateWizards);
+    },
+    onCoatChange: function (color) {
+      coatColor = color;
+      window.debounce(updateWizards);
+    }
+  };
+
+  function successHandler(data) {
+    wizards = data;
+    updateWizards();
+  }
+
+  function errorHandler(errorMessage) {
     var node = document.createElement('div');
     node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
     node.style.position = 'absolute';
@@ -41,9 +66,9 @@
 
     node.textContent = errorMessage;
     document.body.insertAdjacentElement('afterbegin', node);
-  };
+  }
 
-  window.load(loadHandler, errorHandler);
+  window.load(successHandler, errorHandler);
 
   // Кастомизация волшебников
 
@@ -71,11 +96,13 @@
   }
 
   wizardCoat.addEventListener('click', function () {
-    changeColor(wizardCoat, COAT_COLORS);
+    coatColor = changeColor(wizardCoat, COAT_COLORS);
+    updateWizards();
   });
 
   wizardEyes.addEventListener('click', function () {
-    changeColor(wizardEyes, EYES_COLORS);
+    eyesColor = changeColor(wizardEyes, EYES_COLORS);
+    updateWizards();
   });
 
   wizardFireball.addEventListener('click', function () {
@@ -90,5 +117,4 @@
     evt.preventDefault();
     window.save(new FormData(form), saveHandler, errorHandler);
   });
-
 })();
