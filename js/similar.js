@@ -3,8 +3,8 @@
   var COAT_COLORS = ['rgb(101, 137, 164)', 'rgb(241, 43, 107)', 'rgb(146, 100, 161)', 'rgb(56, 159, 117)', 'rgb(215, 210, 55)', 'rgb(0, 0, 0)'];
   var EYES_COLORS = ['black', 'red', 'blue', 'yellow', 'green'];
   var FIREBALL_COLORS = ['#ee4830', '#30a8ee', '#5ce6c0', '#e848d5', '#e6e848'];
-  var coatColor;
-  var eyesColor;
+  var coatColor = getRandomItem(COAT_COLORS);
+  var eyesColor = getRandomItem(EYES_COLORS);
   var wizards = [];
 
   function getRank(wizard) {
@@ -30,14 +30,20 @@
     }
   }
 
+  function sortWizards(left, right) {
+    var rightWizardRank = getRank(right);
+    var leftWizardRank = getRank(left);
+    var rankDiff = rightWizardRank - leftWizardRank;
+    if (rankDiff === 0) {
+      rankDiff = namesComparator(left.name, right.name);
+    }
+    return rankDiff;
+  }
+
   function updateWizards() {
-    window.render(wizards.slice().sort(function (left, right) {
-      var rankDiff = getRank(right) - getRank(left);
-      if (rankDiff === 0) {
-        rankDiff = namesComparator(left.name, right.name);
-      }
-      return rankDiff;
-    }));
+    var newWizardsArray = wizards.slice();
+    var sortedWizardsArray = newWizardsArray.sort(sortWizards);
+    window.render(sortedWizardsArray);
   }
 
   window.wizard = {
@@ -88,11 +94,13 @@
   }
 
   function changeColor(attr, colorsArray) {
+    var newRandomColor = getRandomItem(colorsArray);
     if (attr === wizardFireball) {
-      attr.style.backgroundColor = getRandomItem(colorsArray);
+      attr.style.backgroundColor = newRandomColor;
     } else {
-      attr.style.fill = getRandomItem(colorsArray);
+      attr.style.fill = newRandomColor;
     }
+    return newRandomColor;
   }
 
   wizardCoat.addEventListener('click', function () {
